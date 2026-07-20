@@ -50,7 +50,7 @@ function Aheui.step()
     local cp = utf8.codepoint(char)
     if not cp then move(); return end
 
-    local ch, ju, jo = hangul.decompose_cp(cp)
+    local ch, ju, jo = 律.decompose_cp(cp)
     if not ch then move(); return end
 
     if ju == 0 then dx, dy = 1, 0
