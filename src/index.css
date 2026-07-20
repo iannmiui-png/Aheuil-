@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif KR", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Traditional Chinese/Korean Aesthetic Palette */
+  --color-hanji-white: #FAF7F2;          /* 백색 - Warm Hanji paper */
+  --color-hanji-paper: #F3ECE2;          /* Warm cream textured paper */
+  --color-ink-black: #1E1B18;            /* 흑색 - Charcoal ink / Meuk */
+  --color-ink-dark: #2B2622;             /* Deep charcoal wood */
+  --color-ink-muted: #6E645A;            /* Soft brushstroke gray */
+  --color-clay-gray: #D5C9BC;            /* 흙색 - Clay / earth tone */
+  --color-dancheong-red: #B23A22;        /* 적색 - Vermillion / Lacquer red */
+  --color-dancheong-hover: #982D17;      /* Dark vermillion */
+  --color-celadon-green: #3D6E57;        /* 청색 - Soft celadon green / Jade */
+  --color-celadon-hover: #2F5944;        /* Dark celadon */
+  --color-celadon-tint: #EBF2EE;         /* Very pale celadon wash */
+  --color-imperial-gold: #C48D3F;        /* 황색 - Ochre / Imperial gold */
+  --color-imperial-hover: #A57431;       /* Dark gold */
+}
+
+/* Custom styles for textured traditional look */
+body {
+  background-color: var(--color-hanji-white);
+  color: var(--color-ink-black);
+}
+
+/* Custom scrollbars for paper aesthetics */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-hanji-white);
+  border-left: 1px solid var(--color-clay-gray);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-clay-gray);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-muted);
+}
