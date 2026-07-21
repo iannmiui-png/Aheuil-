@@ -1,7 +1,3 @@
- [!WARNING]
-> Running the instant compiler on a non-halting program (such as the fibonacci sequence) will crash.
->TODO: fix that. this project is very sloppy but the logic helped solve Project Euler 7.
-
 # Aheui Playground (아희 플레이그라운드)
 
 An elegant, interactive playground and visualizer for the esoteric 2D Hangul-based programming language **Aheui** (아희). 
