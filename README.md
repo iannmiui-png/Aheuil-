@@ -1,7 +1,10 @@
 # Aheui Playground (아희 플레이그라운드)
 
-An elegant, interactive playground and visualizer for the esoteric 2D Hangul-based programming language **Aheui** (아희). 
+Playground and visualizer for the esoteric 2D Hangul-based programming language **Aheui** (아희). 
+https://esolangs.org/wiki/Aheui 
+"Aheui (아희 in Korean language) is the first esoteric programming language ever to be designed for Hangul, the Korean alphabet, designed by User:Puzzlet Chung.
 
+Many of the Aheui's concept is derived from Befunge-93, except the fact that it has no instruction for self-modifying, and that it has 26 stacks and one queue."
 ---
 
 ## 🌐 Language Navigation / 언어 바로가기
