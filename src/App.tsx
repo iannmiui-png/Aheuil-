@@ -24,7 +24,9 @@ import {
   Activity,
   Maximize2,
   Compass,
-  Zap
+  Zap,
+  AlertTriangle,
+  CheckCircle2
 } from "lucide-react";
 import {
   AheuiInterpreter,
@@ -103,6 +105,7 @@ export default function App() {
   const [storage, setStorage] = useState<number[][]>(Array.from({ length: 28 }, () => []));
   const [output, setOutput] = useState("");
   const [stepCount, setStepCount] = useState(0);
+  const [executionMessage, setExecutionMessage] = useState<{ type: "success" | "warning"; text: string } | null>(null);
 
   // Initialize interpreter and reset run state with current code/input changes
   useEffect(() => {
@@ -117,6 +120,7 @@ export default function App() {
     interpreter.load(sourceCode);
     interpreter.setInput(inputBuffer);
     updateStates();
+    setExecutionMessage(null);
   };
 
   const updateStates = () => {
@@ -140,6 +144,7 @@ export default function App() {
     interpreter.step();
     setStepCount(prev => prev + 1);
     updateStates();
+    setExecutionMessage(null);
   };
 
   // Autoplay effect
@@ -169,6 +174,7 @@ export default function App() {
     setIsRunning(false);
     setStepCount(0);
     handleLoad();
+    setExecutionMessage(null);
   };
 
   const handlePresetSelect = (preset: typeof PRESETS[number]) => {
@@ -176,6 +182,7 @@ export default function App() {
     setStepCount(0);
     setSourceCode(preset.code);
     setInputBuffer(preset.defaultInput || "");
+    setExecutionMessage(null);
   };
 
   const runToHalt = () => {
@@ -183,8 +190,9 @@ export default function App() {
     if (interpreter.halted) return;
     
     setIsRunning(false);
+    setExecutionMessage(null);
     let steps = 0;
-    const maxSteps = 50000; // safe limit to prevent browser freezing
+    const maxSteps = 5000000; // safe limit to prevent browser freezing (5M steps runs in ~400ms)
     
     while (!interpreter.halted && steps < maxSteps) {
       interpreter.step();
@@ -193,6 +201,18 @@ export default function App() {
     
     setStepCount(prev => prev + steps);
     updateStates();
+
+    if (!interpreter.halted && steps >= maxSteps) {
+      setExecutionMessage({
+        type: "warning",
+        text: `안전을 위해 5,000,000단계에서 일시 정지되었습니다. 무한 루프 상태이거나 복잡한 계산일 수 있습니다. '번개 실행'을 다시 누르면 이어서 추가 5,000,000단계를 진행합니다. (Paused at 5,000,000 steps to prevent freezing. Click Instant Run again to continue.)`
+      });
+    } else if (interpreter.halted) {
+      setExecutionMessage({
+        type: "success",
+        text: `번개처럼 실행이 완료되었습니다! 총 ${steps.toLocaleString()}걸음이 성공적으로 처리되었습니다. (Completed successfully! Processed ${steps.toLocaleString()} steps.)`
+      });
+    }
   };
 
   const activeStorageCount = storage.filter(s => s.length > 0).length;
@@ -431,6 +451,32 @@ export default function App() {
                     </div>
                   </div>
                 </div>
+
+                {executionMessage && (
+                  <div className={`p-4 rounded-xl border font-serif text-xs leading-relaxed flex items-start gap-2.5 shadow-sm transition-all animate-in fade-in slide-in-from-top-2 duration-300 ${
+                    executionMessage.type === "warning"
+                      ? "bg-dancheong-red/5 border-dancheong-red/20 text-ink-black animate-pulse"
+                      : "bg-celadon-green/5 border-celadon-green/20 text-ink-black"
+                  }`}>
+                    {executionMessage.type === "warning" ? (
+                      <AlertTriangle className="w-4 h-4 text-dancheong-red shrink-0 mt-0.5" />
+                    ) : (
+                      <Zap className="w-4 h-4 text-celadon-green shrink-0 mt-0.5" />
+                    )}
+                    <div className="flex-1">
+                      <p className="font-semibold mb-0.5">
+                        {executionMessage.type === "warning" ? "실행 일시 정지 (Execution Paused)" : "실행 완료 (Execution Completed)"}
+                      </p>
+                      <p className="text-ink-muted leading-relaxed">{executionMessage.text}</p>
+                    </div>
+                    <button 
+                      onClick={() => setExecutionMessage(null)}
+                      className="text-ink-muted hover:text-ink-black text-[10px] font-sans hover:bg-ink-muted/10 px-1.5 py-0.5 rounded cursor-pointer"
+                    >
+                      닫기 (Close)
+                    </button>
+                  </div>
+                )}
 
                 {/* 2D Program Execution Map */}
                 <div className="bg-hanji-paper border border-clay-gray rounded-xl p-5 flex flex-col gap-4 flex-1 min-h-[300px] shadow-sm">
