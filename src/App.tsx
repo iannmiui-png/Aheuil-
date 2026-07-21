@@ -72,7 +72,7 @@ const PRESETS = [
   {
     name: "Countdown (5 to 1)",
     description: "A beautifully structured 3-line 2D loop. Counts down from 5 to 1 using loop-back routes and conditional branching (초) to gracefully halt (희) when the counter reaches 0.",
-    code: "우어어어어어어어어어어어어어어어어어\n발빠망삭밤밤따빠다맣사빠반반나타빠초\n                 희"
+    code: "우우어어어어어어어어어어어어어어어어\n발빠망삭밤밤따빠다맣사빠반반나타빠초\n                 희"
   },
   {
     name: "Prime Checker (2D Grid Loop)",
@@ -102,7 +102,7 @@ export default function App() {
   const [ip, setIp] = useState({ x: 0, y: 0, dx: 1, dy: 0 });
   const [halted, setHalted] = useState(false);
   const [currentStorage, setCurrentStorage] = useState(0);
-  const [storage, setStorage] = useState<number[][]>(Array.from({ length: 28 }, () => []));
+  const [storage, setStorage] = useState<bigint[][]>(Array.from({ length: 28 }, () => []));
   const [output, setOutput] = useState("");
   const [stepCount, setStepCount] = useState(0);
   const [executionMessage, setExecutionMessage] = useState<{ type: "success" | "warning"; text: string } | null>(null);
@@ -345,17 +345,25 @@ export default function App() {
 
                   {/* Input Buffer Panel */}
                   <div className="flex flex-col gap-2">
-                    <label className="text-xs font-serif text-ink-dark flex items-center gap-1.5">
-                      <Terminal className="w-3.5 h-3.5 text-celadon-green" />
-                      기록틀 (Input Buffer - space-separated)
+                    <label className="text-xs font-serif text-ink-dark flex items-center gap-1.5 justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Terminal className="w-3.5 h-3.5 text-[#0046ff]" />
+                        기록틀 (Input Buffer)
+                      </span>
+                      <span className="font-mono text-[9px] text-[#0046ff] font-bold tracking-wider uppercase bg-[#0046ff]/10 px-1.5 py-0.5 select-none">
+                        DS_CONSOLE_IN
+                      </span>
                     </label>
-                    <input
-                      type="text"
-                      value={inputBuffer}
-                      onChange={(e) => setInputBuffer(e.target.value)}
-                      placeholder="e.g. 10 20 (for ㅇ) or characters (for ㅎ)"
-                      className="w-full bg-hanji-white border border-clay-gray rounded-lg px-3 py-2 text-sm text-ink-black font-mono focus:outline-none focus:border-celadon-green/50 shadow-inner"
-                    />
+                    <div className="relative flex items-center bg-[#05091e] border-2 border-[#0046ff] px-3 py-2 text-sm text-[#00f0ff] font-mono rounded-none shadow-[0_0_15px_rgba(0,70,255,0.12)]">
+                      <span className="text-[#0046ff] mr-2 shrink-0 select-none font-bold">&gt;</span>
+                      <input
+                        type="text"
+                        value={inputBuffer}
+                        onChange={(e) => setInputBuffer(e.target.value)}
+                        placeholder="e.g. 10 20"
+                        className="w-full bg-transparent border-none outline-none p-0 text-[#00f0ff] placeholder-[#0046ff]/40 font-mono focus:ring-0 focus:outline-none select-text caret-[#00f0ff]"
+                      />
+                    </div>
                   </div>
 
                   {/* Manual trigger reload if modified */}
@@ -551,25 +559,42 @@ export default function App() {
                 {/* Grid row: Stacks and Outputs */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Execution Output Stream */}
-                  <div className="bg-hanji-paper border border-clay-gray rounded-xl p-5 flex flex-col gap-3 shadow-sm">
-                    <div className="flex items-center justify-between border-b border-clay-gray/60 pb-2">
-                      <div className="flex items-center gap-2 text-ink-black font-semibold font-serif text-sm">
-                        <Terminal className="w-4 h-4 text-dancheong-red" />
-                        출력창 (Console Output)
+                  <div className="bg-[#030712] border-2 border-[#0046ff] rounded-none p-5 flex flex-col gap-3 shadow-[0_0_20px_rgba(0,70,255,0.12)]">
+                    <div className="flex items-center justify-between border-b border-[#0046ff]/30 pb-2">
+                      <div className="flex items-center gap-2 text-[#00f0ff] font-semibold font-mono text-xs uppercase tracking-wider">
+                        <Terminal className="w-4 h-4 text-[#0046ff]" />
+                        Aheui Terminal :: stdout
                       </div>
-                      {halted && (
-                        <span className="bg-dancheong-red text-hanji-white text-[10px] font-bold px-2.5 py-0.5 rounded shadow-sm font-serif">
-                          끝남 (HALTED)
+                      {halted ? (
+                        <span className="bg-[#ef4444] text-white text-[9px] font-bold px-2 py-0.5 rounded-none font-mono tracking-wider animate-pulse">
+                          SYSTEM_HALTED
+                        </span>
+                      ) : (
+                        <span className="bg-[#0046ff]/20 text-[#00f0ff] border border-[#0046ff]/40 text-[9px] font-bold px-2 py-0.5 rounded-none font-mono tracking-wider">
+                          READY_TO_RUN
                         </span>
                       )}
                     </div>
-                    <div className="flex-1 min-h-[140px] bg-hanji-white border border-clay-gray rounded-lg p-3.5 font-mono text-sm overflow-y-auto max-h-[180px] flex flex-col justify-between shadow-inner">
-                      <div className="text-ink-black leading-relaxed whitespace-pre-wrap font-bold">
-                        {output || <span className="text-ink-muted/40 italic font-mono text-xs">출력을 기다리는 중...</span>}
+                    <div className="flex-1 min-h-[140px] bg-[#020514] border border-[#0046ff]/20 rounded-none p-3.5 font-mono text-sm overflow-y-auto max-h-[180px] flex flex-col justify-between shadow-inner">
+                      <div className="text-[#f1f5f9] leading-relaxed whitespace-pre-wrap font-bold text-xs">
+                        {output.length > 5000 ? (
+                          <>
+                            {output.slice(-5000)}
+                            <div className="text-red-400 text-[10px] mt-1.5 italic font-mono uppercase tracking-wider">
+                              [OUTPUT STREAM TRUNCATED FOR PERFORMANCE - SHOWING LATEST 5000 CHARS]
+                            </div>
+                          </>
+                        ) : (
+                          output || (
+                            <span className="text-[#0046ff]/50 italic font-mono text-xs animate-pulse">
+                              &gt; waiting for output...
+                            </span>
+                          )
+                        )}
                       </div>
-                      <div className="text-[10px] text-ink-muted border-t border-clay-gray/40 pt-2 flex justify-between items-center mt-4 font-serif">
-                        <span>표준 출력 흐름 (stdout)</span>
-                        <span>{output.length}자 출력됨</span>
+                      <div className="text-[10px] text-[#0046ff]/60 border-t border-[#0046ff]/10 pt-2 flex justify-between items-center mt-4 font-mono uppercase tracking-wider">
+                        <span>stdout stream</span>
+                        <span>{output.length} chars emitted</span>
                       </div>
                     </div>
                   </div>
@@ -614,14 +639,19 @@ export default function App() {
                                   </span>
                                 </div>
                                 <div className="flex flex-wrap gap-1">
-                                  {store.map((val, vIdx) => (
+                                  {store.slice(-40).map((val, vIdx) => (
                                     <span
                                       key={vIdx}
                                       className="bg-hanji-white border border-clay-gray rounded px-2 py-0.5 text-xs font-mono text-ink-black font-semibold shadow-sm"
                                     >
-                                      {val}
+                                      {val.toString()}
                                     </span>
                                   ))}
+                                  {store.length > 40 && (
+                                    <span className="text-[10px] text-ink-muted self-center italic px-1 font-mono">
+                                      (+ {store.length - 40} more)
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             );
@@ -631,6 +661,8 @@ export default function App() {
                     </div>
                   </div>
                 </div>
+
+
               </div>
             </motion.div>
           ) : (

@@ -44,3 +44,13 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-ink-muted);
 }
+
+@keyframes terminal-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-terminal-blink {
+  animation: terminal-blink 1s step-end infinite;
+}
+

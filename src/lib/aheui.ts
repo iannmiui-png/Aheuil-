@@ -61,7 +61,7 @@ export interface InterpreterState {
   dy: number;
   halted: boolean;
   currentStorage: number;
-  storage: number[][];
+  storage: bigint[][];
   output: string;
 }
 
@@ -72,7 +72,7 @@ export class AheuiInterpreter {
   public dx: number = 1;
   public dy: number = 0;
   public halted: boolean = false;
-  public storage: number[][] = [];
+  public storage: bigint[][] = [];
   public currentStorage: number = 0;
   public output: string = "";
   
@@ -97,7 +97,15 @@ export class AheuiInterpreter {
 
   public load(sourceCode: string) {
     this.reset();
-    this.code = sourceCode.split(/\r?\n/).map(line => Array.from(line));
+    const lines = sourceCode.split(/\r?\n/).map(line => Array.from(line));
+    const maxLen = Math.max(0, ...lines.map(l => l.length));
+    this.code = lines.map(line => {
+      const padded = [...line];
+      while (padded.length < maxLen) {
+        padded.push(' ');
+      }
+      return padded;
+    });
   }
 
   public setInput(input: string) {
@@ -105,12 +113,12 @@ export class AheuiInterpreter {
     this.inputPtr = 0;
   }
 
-  private pushVal(storageIdx: number, val: number) {
+  private pushVal(storageIdx: number, val: bigint) {
     if (storageIdx === 27) return; // ㅎ is throwaway storage
     this.storage[storageIdx].push(val);
   }
 
-  private popVal(storageIdx: number): number | null {
+  private popVal(storageIdx: number): bigint | null {
     if (storageIdx === 27) return null;
     const store = this.storage[storageIdx];
     if (store.length === 0) return null;
@@ -126,27 +134,27 @@ export class AheuiInterpreter {
     }
   }
 
-  private readInputNum(): number {
+  private readInputNum(): bigint {
     // Read next whitespace-delimited integer or parse characters
     const text = this.inputBuffer.slice(this.inputPtr).trim();
-    if (!text) return 0;
+    if (!text) return 0n;
     
     const match = text.match(/^(-?\d+)/);
     if (match) {
-      const num = parseInt(match[1], 10);
+      const num = BigInt(match[1]);
       this.inputPtr += this.inputBuffer.slice(this.inputPtr).indexOf(match[1]) + match[1].length;
       return num;
     }
-    return 0;
+    return 0n;
   }
 
-  private readInputChar(): number {
+  private readInputChar(): bigint {
     if (this.inputPtr < this.inputBuffer.length) {
       const char = this.inputBuffer[this.inputPtr];
       this.inputPtr++;
-      return char.charCodeAt(0);
+      return BigInt(char.charCodeAt(0));
     }
-    return 0;
+    return 0n;
   }
 
   private move() {
@@ -227,8 +235,8 @@ export class AheuiInterpreter {
       case 2: { // ㄴ: divide (pop a, pop b, push b / a)
         const a = this.popVal(this.currentStorage);
         const b = this.popVal(this.currentStorage);
-        if (a !== null && b !== null && a !== 0) {
-          this.pushVal(this.currentStorage, Math.floor(b / a));
+        if (a !== null && b !== null && a !== 0n) {
+          this.pushVal(this.currentStorage, b / a);
         } else {
           if (a !== null) this.pushVal(this.currentStorage, a);
           if (b !== null) this.pushVal(this.currentStorage, b);
@@ -266,8 +274,8 @@ export class AheuiInterpreter {
       case 5: { // ㄹ: modulo (pop a, pop b, push b % a)
         const a = this.popVal(this.currentStorage);
         const b = this.popVal(this.currentStorage);
-        if (a !== null && b !== null && a !== 0) {
-          // JavaScript's modulo can be negative, need standard mathematical modulo
+        if (a !== null && b !== null && a !== 0n) {
+          // BigInt modulo can be negative, need standard mathematical modulo
           const mod = ((b % a) + a) % a;
           this.pushVal(this.currentStorage, mod);
         } else {
@@ -287,7 +295,7 @@ export class AheuiInterpreter {
           } else if (idx === 27) {
             // ㅎ: print as character
             try {
-              this.output += String.fromCodePoint(a);
+              this.output += String.fromCodePoint(Number(a));
             } catch {
               this.output += "";
             }
@@ -310,7 +318,7 @@ export class AheuiInterpreter {
           this.pushVal(this.currentStorage, cp);
         } else {
           // push stroke count of final consonant
-          this.pushVal(this.currentStorage, STROKES[idx]);
+          this.pushVal(this.currentStorage, BigInt(STROKES[idx]));
         }
         break;
       }
@@ -348,7 +356,7 @@ export class AheuiInterpreter {
         const a = this.popVal(this.currentStorage);
         const b = this.popVal(this.currentStorage);
         if (a !== null && b !== null) {
-          this.pushVal(this.currentStorage, b >= a ? 1 : 0);
+          this.pushVal(this.currentStorage, b >= a ? 1n : 0n);
         } else {
           if (a !== null) this.pushVal(this.currentStorage, a);
           if (b !== null) this.pushVal(this.currentStorage, b);
@@ -360,7 +368,7 @@ export class AheuiInterpreter {
       case 14: { // ㅊ: conditional (pop a, reverse direction if a == 0)
         const a = this.popVal(this.currentStorage);
         if (a !== null) {
-          if (a === 0) {
+          if (a === 0n) {
             this.dx = -this.dx;
             this.dy = -this.dy;
           }
