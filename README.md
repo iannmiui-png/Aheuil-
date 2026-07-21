@@ -1,6 +1,6 @@
 # Aheui Playground (아희 플레이그라운드)
 
-(아희). 
+An elegant, interactive playground and visualizer for the esoteric 2D Hangul-based programming language **Aheui** (아희). 
 
 ---
 
@@ -16,7 +16,7 @@
 ## English
 
 ### 🌟 About Aheui
-**Aheui** is a two-dimensional, stack-based esoteric programming language modeled after the Hangul (Korean) writing system. Every syllable block in Hangul acts as a single instruction:
+**Aheui** is a famous two-dimensional, stack-based esoteric programming language modeled after the Hangul (Korean) writing system. Every syllable block in Hangul acts as a single instruction:
 - **Initial Consonant (초성):** Defines the operation (e.g., arithmetic, push/pop, input/output).
 - **Vowel (중성):** Determines the cursor velocity and movement direction in the 2D grid.
 - **Final Consonant (종성):** Acts as a parameter (determines integer values to push or selects the storage container).
@@ -187,3 +187,5 @@ npm run build
 ```
 
 ---
+
+*Crafted with 💖 by the Google AI Studio Coding Assistant. Enjoy coding in Aheui!*
