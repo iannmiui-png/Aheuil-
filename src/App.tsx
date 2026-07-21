@@ -23,7 +23,8 @@ import {
   Hash,
   Activity,
   Maximize2,
-  Compass
+  Compass,
+  Zap
 } from "lucide-react";
 import {
   AheuiInterpreter,
@@ -74,7 +75,8 @@ const PRESETS = [
   {
     name: "Prime Checker (2D Grid Loop)",
     description: "Takes an integer input N and outputs 1 if N is prime, or 0 if composite. Features a beautifully aligned 2D search loop with custom horizontal routing (어) and vertical branching (초).",
-    code: "방반아아아아아우      사반반나망희\n아사사받반타다사팍카팍카삭자초\n초어어어어어러어석퍽커퍽커서어\n사반반타망희"
+    code: "방반아아아아아우      사반반나망희\n아사사받반타다사팍카팍카삭자초\n초어어어어어러어석퍽커퍽커서어\n사반반타망희",
+    defaultInput: "7"
   },
   {
     name: "Project Euler 7 (10,001st Prime)",
@@ -102,10 +104,12 @@ export default function App() {
   const [output, setOutput] = useState("");
   const [stepCount, setStepCount] = useState(0);
 
-  // Initialize interpreter with current code
+  // Initialize interpreter and reset run state with current code/input changes
   useEffect(() => {
+    setIsRunning(false);
+    setStepCount(0);
     handleLoad();
-  }, [sourceCode]);
+  }, [sourceCode, inputBuffer]);
 
   // Load code into interpreter
   const handleLoad = () => {
@@ -159,16 +163,36 @@ export default function App() {
     };
   }, [isRunning, speed]);
 
+  // Input buffer is fully synchronized and loaded as part of the main effect above
+
   const handleReset = () => {
     setIsRunning(false);
     setStepCount(0);
     handleLoad();
   };
 
-  const handlePresetSelect = (presetCode: string) => {
+  const handlePresetSelect = (preset: typeof PRESETS[number]) => {
     setIsRunning(false);
     setStepCount(0);
-    setSourceCode(presetCode);
+    setSourceCode(preset.code);
+    setInputBuffer(preset.defaultInput || "");
+  };
+
+  const runToHalt = () => {
+    const interpreter = interpreterRef.current;
+    if (interpreter.halted) return;
+    
+    setIsRunning(false);
+    let steps = 0;
+    const maxSteps = 50000; // safe limit to prevent browser freezing
+    
+    while (!interpreter.halted && steps < maxSteps) {
+      interpreter.step();
+      steps++;
+    }
+    
+    setStepCount(prev => prev + steps);
+    updateStates();
   };
 
   const activeStorageCount = storage.filter(s => s.length > 0).length;
@@ -262,7 +286,7 @@ export default function App() {
                     {PRESETS.map((preset) => (
                       <button
                         key={preset.name}
-                        onClick={() => handlePresetSelect(preset.code)}
+                        onClick={() => handlePresetSelect(preset)}
                         className={`text-left p-3 rounded-lg border transition-all hover:bg-hanji-white/50 group ${
                           sourceCode === preset.code
                             ? "bg-hanji-white border-dancheong-red/40 text-ink-black shadow-sm"
@@ -353,6 +377,18 @@ export default function App() {
                         달리기 (Run)
                       </button>
                     )}
+                    <button
+                      onClick={runToHalt}
+                      disabled={halted || isRunning}
+                      className={`px-4 py-2 rounded-lg text-xs font-serif font-semibold transition-all flex items-center gap-2 ${
+                        halted || isRunning
+                          ? "bg-ink-muted/10 text-ink-muted/40 border border-clay-gray/45 cursor-not-allowed opacity-50"
+                          : "bg-celadon-green hover:bg-celadon-hover text-hanji-white shadow-md cursor-pointer"
+                      }`}
+                    >
+                      <Zap className="w-3.5 h-3.5 fill-current" />
+                      번개 실행 (Instant Run)
+                    </button>
                     <button
                       onClick={step}
                       disabled={halted || isRunning}
