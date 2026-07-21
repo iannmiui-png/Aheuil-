@@ -1,54 +1,11 @@
 # Aheui Playground (아희 플레이그라운드)
+https://esolangs.org/wiki/Aheui 
 
 Playground and visualizer for the esoteric 2D Hangul-based programming language **Aheui** (아희). 
-https://esolangs.org/wiki/Aheui 
+
 "Aheui (아희 in Korean language) is the first esoteric programming language ever to be designed for Hangul, the Korean alphabet, designed by User:Puzzlet Chung.
 
 Many of the Aheui's concept is derived from Befunge-93, except the fact that it has no instruction for self-modifying, and that it has 26 stacks and one queue."
----
-
-## 🌐 Language Navigation / 언어 바로가기
-- [English](#english)
-- [한국어 (Korean)](#한국어-korean)
-- [中文 (Chinese)](#中文-chinese)
-- [日本語 (Japanese)](#日本語-japanese)
-- [العربية (Arabic)](#العربية-arabic)
-
----
-
-## English
-
-### 🌟 About Aheui
-**Aheui** is a famous two-dimensional, stack-based esoteric programming language modeled after the Hangul (Korean) writing system. Every syllable block in Hangul acts as a single instruction:
-- **Initial Consonant (초성):** Defines the operation (e.g., arithmetic, push/pop, input/output).
-- **Vowel (중성):** Determines the cursor velocity and movement direction in the 2D grid.
-- **Final Consonant (종성):** Acts as a parameter (determines integer values to push or selects the storage container).
-
-### 🚀 Key Features
-- **Interactive 2D Grid Visualizer:** Watch the instruction pointer (PC) sweep across your grid with dynamic direction arrows and highlighted execution cells in real-time.
-- **Comprehensive Debugging Suite:** Run, pause, execute step-by-step, or reset. Control execution speed (from slow-motion tracing up to lightning-fast execution).
-- **Live Memory Inspector:** View the contents of all 26 stacks, 1 queue (통), and 1 extension port in real-time as elements are pushed, popped, and transferred.
-- **Aheui AI Assistant & Generator:** Powered by Google Gemini, get help writing Aheui code or translate algorithms into direct Hangul instructions.
-- **Built-in Program Presets:**
-  - **Hello World:** Prints the standard Esoteric greeting.
-  - **Fibonacci Sequence:** Generates numbers in the Fibonacci sequence.
-  - **Countdown:** A loop-back routing layout counting down from 5 to 1.
-  - **2D Grid Prime Checker:** High-fidelity 2D search loop checking if an input is prime (yielding `1` or `0`).
-  - **Project Euler 7 (10,001st Prime):** Solves Euler 7 by utilizing optimized stack factorization to print `104743`.
-
-### 🛠️ Getting Started
-Ensure you have Node.js installed on your machine.
-```bash
-# Install dependencies
-npm install
-
-# Start the interactive development server
-npm run dev
-
-# Build for production deployment
-npm run build
-```
-
 ---
 
 ## 한국어 (Korean)
@@ -63,7 +20,6 @@ npm run build
 - **대화형 2D 격자 시각화:** 실시간으로 움직이는 실행 포인터(PC)의 방향 화살표와 현재 실행 중인 음절 셀을 화면 상에서 직관적으로 파악할 수 있습니다.
 - **강력한 디버깅 도구:** 실행(Play), 일시 정지(Pause), 단계별 단일 실행(Step), 초기화(Reset) 및 추적 속도 제어 인터페이스를 완벽 제공합니다.
 - **실시간 메모리 모니터링:** 26개의 스택, 1개의 큐(통), 확장 포트의 상태를 한눈에 볼 수 있으며, 데이터가 밀려들고 빠져나가는 과정을 실시간 관찰할 수 있습니다.
-- **아희 AI 어시스턴트:** Google Gemini API를 활용하여 까다로운 아희 소스코드를 분석하고, 자연어 아이디어를 아희 프로그램으로 코딩해주는 스마트 보조 기능을 탑재했습니다.
 - **풍부한 기본 프리셋 탑재:**
   - **Hello World:** 전통적인 인사말을 출력합니다.
   - **피보나치 수열:** 연속적인 피보나치 정수를 동적으로 생성합니다.
@@ -98,7 +54,6 @@ npm run build
 - **交互式 2D 网格可视化：** 实时直观地展示指令指针（PC）在网格中的扫掠轨迹，并伴有动态方向箭头和高亮突出显示当前执行的单元格。
 - **全方位调试套件：** 支持运行、暂停、单步执行（Step）及重置。支持从慢动作步进追踪到极速运行的宽频速度调节。
 - **实时内存监视器：** 实时动态渲染全部 26 个堆栈、1 个队列（통）及扩展端口的内部状态，捕获其数据压入、弹出、以及数据转换的每一个微观过程。
-- **Aheui 智能 AI 助手：** 整合了先进的 Google Gemini 模型，为您解读复杂的 Aheui 指令，甚至将您的算法思路直接转换翻译成韩文 Aheui 代码。
 - **内置经典预设程序：**
   - **Hello World (世界你好):** 打印经典的 esoteric 语言问候。
   - **斐波那契数列:** 生成一系列的斐波那契数。
@@ -133,7 +88,6 @@ npm run build
 - **直感的な2次元実行ビジュアライザ：** 2Dグリッド上を移動するプログラムカウンタ（PC）の動きを、進路矢印アニメーションやセルハイライトによってリアルタイムで追跡。
 - **統合型デバッグツール：** 実行、一時停止、1ステップ実行（Step）、初期化（Reset）を完備。1秒あたりの動作ステップ数をスライダーで自在に調節可能。
 - **ライブメモリインスペクタ：** 26個のスタック、1個のキュー（통）、拡張ポートそれぞれのストレージデータをリアルタイムに可視化。
-- **Aheui AI アシスタント：** Google Gemini を通じた言語サポートを実装。難読なコードの解釈や、ユーザーの望むロジックを自動で Aheui コードへ変換可能。
 - **高品質なプログラムプリセット：**
   - **Hello World:** 標準的なテキスト出力サンプル。
   - **フィボナッチ数列 (Fibonacci):** 動的に変化するフィボナッチ数を生成。
@@ -168,7 +122,6 @@ npm run build
 - **مُحاكي تفاعلي للشبكة ثنائية الأبعاد:** شاهد مسار مؤشر التعليمات (PC) وهو يتحرك على الشبكة في البعدين مع مؤشرات حية ومتحركة للاتجاهات وتلوين الخلية الحالية قيد التنفيذ.
 - **أدوات تصحيح وتتبع متكاملة:** تشغيل، إيقاف مؤقت، تقدم خطوة بخطوة (Step)، وإعادة تعيين. تحكم مرن في سرعة تتبع الأكواد من البطء الشديد وحتى السرعة القصوى.
 - **مراقب الذاكرة الفوري:** تابع محتويات 26 كدسة مخزنة (Stacks)، وطابوراً واحداً (Queue / 통)، ومنفذ الإدخال الإضافي فور دفع البيانات أو سحبها.
-- **مساعد ذكي مدعوم بالذكاء الاصطناعي (Gemini):** مساعد متكامل يشرح لك الأكواد المعقدة، ويولد أكواداً برمجية بلغة "أهوي" بناءً على خوارزمياتك الطبيعية.
 - **أمثلة برمجية كلاسيكية مدمجة:**
   - **أهلاً بالعالم (Hello World):** طباعة جملة الترحيب الشهيرة.
   - **متتالية فيبوناتشي:** توليد الأعداد المتتالية ديناميكياً.
