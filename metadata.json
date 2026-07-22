@@ -2,5 +2,5 @@
   "name": "Aheui Playground",
   "description": "An interactive playground and visualizer for the esoteric 2D Hangul-based programming language Aheui.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }

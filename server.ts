@@ -2,102 +2,28 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
-import { GoogleGenAI } from "@google/genai";
 
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 app.use(express.json());
-
-// System prompt for Aheui Code Generation & Debugging
-const AHEUI_SYSTEM_PROMPT = `You are Aheui-AI, an expert AI assistant specialized in the Aheui (아해어) esoteric programming language.
-
-AHEUI SPECIFICATION SUMMARY:
-1. Grid & Execution:
-   - Code is written as a 2D grid of Hangul syllables (UTF-8).
-   - Execution starts at (0,0) moving right (dx=1, dy=0).
-   - Each syllable consists of Choseong (Initial Consonant = Command), Jungseong (Vowel = Direction/Speed), and Jongseong (Final Consonant = Stack ID or Parameter).
-
-2. Initial Consonants (Commands):
-   - ㅇ (0 strokes): No-op.
-   - ㅎ: Halt program execution (e.g., 희).
-   - ㄷ: Add top two numbers on stack.
-   - ㄸ: Multiply top two numbers on stack.
-   - ㄴ: Divide top two numbers (pop b, pop a -> push a / b).
-   - ㄹ: Modulo top two numbers (pop b, pop a -> push a % b).
-   - ㅌ: Subtract top two numbers (pop b, pop a -> push a - b).
-   - ㅂ: Push value to current stack.
-     * If Jongseong is 'ㅇ' (방): Read integer from input buffer and push.
-     * If Jongseong is 'ㅎ' (바): Read UTF-8 char code from input and push.
-     * Otherwise: Push stroke count of Jongseong (ㄱ:2, ㄴ:2, ㄷ:3, ㄹ:4, ㅁ:5, ㅂ:6, ㅅ:2, ㅈ:3, ㅊ:4, ㅋ:3, ㅌ:4, ㅍ:4, ㅎ:0, etc.).
-   - ㅃ: Duplicate top value on stack.
-   - ㅍ: Swap top two values on stack.
-   - ㅁ: Pop and print value.
-     * If Jongseong is 'ㅇ' (망): Print as integer + space.
-     * If Jongseong is 'ㅎ' (맣): Print as Unicode character.
-   - ㅅ: Select storage stack indexed by Jongseong.
-   - ㅆ: Move top value to stack indexed by Jongseong.
-   - ㅈ: Compare top two values (pop b, pop a -> push 1 if a >= b else 0).
-   - ㅊ: Conditional Branch. Pop x. If x != 0, maintain current direction. If x == 0, REVERSE direction (or turn right if vertical/horizontal).
-
-3. Vowels (Directions & Movement):
-   - ㅏ: Move right (dx=1, dy=0)
-   - ㅓ: Move left (dx=-1, dy=0)
-   - ㅗ: Move up (dx=0, dy=-1)
-   - ㅜ: Move down (dx=0, dy=1)
-   - ㅑ: Move right 2 steps
-   - ㅕ: Move left 2 steps
-   - ㅛ: Move up 2 steps
-   - ㅠ: Move down 2 steps
-   - ㅡ: Reverse vertical direction (dy = -dy)
-   - ㅣ: Reverse horizontal direction (dx = -dx)
-   - ㅢ: Keep current direction
-
-4. Stacks:
-   - 26 Stacks (ㄱ=0..ㅎ=25), Queue (21/ㅇ), Discard (27/ㅎ).
-
-When generating Aheui code:
-- Output ONLY valid Hangul code inside a markdown code block tagged with \`\`\`aheui or \`\`\`
-- Always end with '희' or a path leading to '희' to prevent infinite loops.
-- Provide a clear, concise step-by-step explanation after the code block.
-`;
 
 // API health endpoint
 app.get("/api/health", (req, res) => {
   res.json({
-    status: "ok",
-    hasGeminiKey: Boolean(process.env.GEMINI_API_KEY)
+    status: "ok"
   });
 });
 
-app.post("/api/ai/generate", async (req, res) => {
+app.post("/api/ai/generate", (req, res) => {
   try {
-    const { prompt, action, code } = req.body;
-
-    let userPrompt = "";
-    if (action === "explain") {
-      userPrompt = `Please explain the following Aheui code step by step:\n\n\`\`\`aheui\n${code}\n\`\`\``;
-    } else if (action === "debug") {
-      userPrompt = `Please analyze and fix bugs in this Aheui code:\n\n\`\`\`aheui\n${code}\n\`\`\`\n\nUser Notes / Issue: ${prompt || "Check for missing halt, stack bugs, or direction errors."}`;
-    } else if (action === "optimize") {
-      userPrompt = `Please optimize or simplify this Aheui code:\n\n\`\`\`aheui\n${code}\n\`\`\``;
-    } else {
-      userPrompt = `Write a functional Aheui program that satisfies this request: "${prompt}"`;
-    }
-
-    const geminiKey = process.env.GEMINI_API_KEY;
-
-    if (geminiKey) {
-      return await handleGeminiRequest(req, res, userPrompt, geminiKey);
-    }
-
-    // Fallback to Built-in Engine without requiring any keys
-    const builtinResult = handleBuiltinEngineRequest(action, prompt, code);
+    const { prompt, action, code } = req.body || {};
+    const builtinResult = handleBuiltinEngineRequest(action || "generate", prompt || "", code || "");
     return res.json(builtinResult);
   } catch (err: any) {
-    console.error("AI Generation Error, falling back to Built-in Engine:", err);
+    console.error("Aheui Engine Error:", err);
     const { prompt, action, code } = req.body || {};
     const builtinResult = handleBuiltinEngineRequest(action || "generate", prompt || "", code || "");
     res.json(builtinResult);
@@ -226,22 +152,6 @@ ${explanation}
     provider: "Built-in Aheui Engine",
     model: "Aheui-Smart-v1"
   };
-}
-
-async function handleGeminiRequest(req: any, res: any, userPrompt: string, apiKey: string) {
-  const ai = new GoogleGenAI({ apiKey });
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: [
-      { role: "user", parts: [{ text: `${AHEUI_SYSTEM_PROMPT}\n\nTask:\n${userPrompt}` }] }
-    ]
-  });
-
-  return res.json({
-    content: response.text || "No response generated from Gemini.",
-    provider: "Gemini",
-    model: "gemini-2.5-flash"
-  });
 }
 
 // Vite middleware for development or serving built static files
