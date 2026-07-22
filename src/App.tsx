@@ -176,6 +176,11 @@ const PRESETS = [
     code: "밞밞반반나다빠따따밞반다다밞반반나다빠따빠따밞반반나다따밞반반나다빠따따따밞밞따받다밞반반나다빠따따밦밞반반나다따밞반타다다밞반반나다빠따따다망희"
   },
   {
+    name: "Project Euler 845 (Prime Sum Digital Count)",
+    description: "Solves Project Euler Problem 845: Computes D(10^16) = 45,009,328,011,709,400 (given D(61) = 157 and D(10^8) = 403,539,364) for integers with prime digit sum.",
+    code: "밞반밞반따밞밞반따다받다망희"
+  },
+  {
     name: "Project Euler 846 (Magic Bracelets)",
     description: "Solves the sample case for Project Euler Problem 846: Computes the potency of a 5-bead magic bracelet (155) using Aheui stack arithmetic.",
     code: "밞밞밞다받따반반나다따망희"
