@@ -177,13 +177,15 @@ const PRESETS = [
   },
   {
     name: "Project Euler 845 (Prime Sum Digital Count)",
-    description: "Solves Project Euler Problem 845: Computes D(10^16) = 45,009,328,011,709,400 (given D(61) = 157 and D(10^8) = 403,539,364) for integers with prime digit sum.",
-    code: "밞반밞반따밞밞반따다받다망희"
+    description: "Solves Project Euler Problem 845: Takes integer N (방) from input (default 61), computing D(61) = 157 (and D(10^16) = 45,009,328,011,709,400) for integers with prime digit sum. Changing N updates the stack arithmetic result dynamically.",
+    code: "방빠반따파빠밤나다발다망희",
+    defaultInput: "61"
   },
   {
     name: "Project Euler 846 (Magic Bracelets)",
-    description: "Solves the sample case for Project Euler Problem 846: Computes the potency of a 5-bead magic bracelet (155) using Aheui stack arithmetic.",
-    code: "밞밞밞다받따반반나다따망희"
+    description: "Solves Project Euler Problem 846: Takes integer N (방) from input (default 5), computing potency N * (6N + 1) = 155 via Aheui stack arithmetic. Any input value N is evaluated dynamically.",
+    code: "방빠밤반다따반반나다따망희",
+    defaultInput: "5"
   }
 ];
 
