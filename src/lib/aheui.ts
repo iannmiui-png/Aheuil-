@@ -90,7 +90,7 @@ export class AheuiInterpreter {
   public output: string = "";
   public infinityCount: number = 0;
   public history: InterpreterSnapshot[] = [];
-  public maxHistory: number = 2000;
+  public maxHistory: number = 200;
   
   private inputBuffer: string = "";
   private inputPtr: number = 0;
@@ -242,7 +242,7 @@ export class AheuiInterpreter {
     return true;
   }
 
-  public step() {
+  public step(recordHistory: boolean = true) {
     if (this.halted) return;
 
     if (this.code.length === 0) {
@@ -250,10 +250,12 @@ export class AheuiInterpreter {
       return;
     }
 
-    if (this.history.length >= this.maxHistory) {
-      this.history.shift();
+    if (recordHistory) {
+      if (this.history.length >= this.maxHistory) {
+        this.history.shift();
+      }
+      this.history.push(this.getSnapshot());
     }
-    this.history.push(this.getSnapshot());
 
     const row = this.code[this.y];
     if (!row || row.length === 0 || this.x >= row.length) {
@@ -365,12 +367,18 @@ export class AheuiInterpreter {
             }
 
             this.output += strVal;
+            if (this.output.length > 200000) {
+              this.output = this.output.substring(this.output.length - 100000);
+            }
           } else if (idx === 27) {
             // ㅎ: print as character
             try {
               this.output += String.fromCodePoint(Number(a));
             } catch {
               this.output += "";
+            }
+            if (this.output.length > 200000) {
+              this.output = this.output.substring(this.output.length - 100000);
             }
           }
           // Other finals: discard popped value

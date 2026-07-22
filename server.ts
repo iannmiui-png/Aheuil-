@@ -12,7 +12,7 @@ const PORT = 3000;
 app.use(express.json());
 
 // System prompt for Aheui Code Generation & Debugging
-const AHEUI_SYSTEM_PROMPT = `You are DeepSeek-Aheui, an expert AI assistant specialized in the Aheui (아해어) esoteric programming language.
+const AHEUI_SYSTEM_PROMPT = `You are Aheui-AI, an expert AI assistant specialized in the Aheui (아해어) esoteric programming language.
 
 AHEUI SPECIFICATION SUMMARY:
 1. Grid & Execution:
@@ -68,14 +68,13 @@ When generating Aheui code:
 app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
-    hasDeepSeekKey: Boolean(process.env.DEEPSEEK_API_KEY),
     hasGeminiKey: Boolean(process.env.GEMINI_API_KEY)
   });
 });
 
 app.post("/api/ai/generate", async (req, res) => {
   try {
-    const { prompt, action, code, model = "deepseek-chat" } = req.body;
+    const { prompt, action, code } = req.body;
 
     let userPrompt = "";
     if (action === "explain") {
@@ -88,89 +87,15 @@ app.post("/api/ai/generate", async (req, res) => {
       userPrompt = `Write a functional Aheui program that satisfies this request: "${prompt}"`;
     }
 
-    const deepseekKey = process.env.DEEPSEEK_API_KEY;
     const geminiKey = process.env.GEMINI_API_KEY;
 
-    if (model.startsWith("deepseek") || (!model.startsWith("gemini") && deepseekKey)) {
-      if (!deepseekKey) {
-        if (geminiKey) {
-          return await handleGeminiRequest(req, res, userPrompt, geminiKey);
-        }
-        // Fallback to Built-in Engine without error
-        const builtinResult = handleBuiltinEngineRequest(action, prompt, code);
-        return res.json(builtinResult);
-      }
-
-      const deepseekModel = model === "deepseek-reasoner" ? "deepseek-reasoner" : "deepseek-chat";
-
-      const response = await fetch("https://api.deepseek.com/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${deepseekKey}`
-        },
-        body: JSON.stringify({
-          model: deepseekModel,
-          messages: [
-            { role: "system", content: AHEUI_SYSTEM_PROMPT },
-            { role: "user", content: userPrompt }
-          ],
-          temperature: 0.2
-        })
-      });
-
-      if (!response.ok) {
-        const errText = await response.text();
-        console.warn(`DeepSeek API status ${response.status}, falling back to Built-in Engine.`);
-        const builtinResult = handleBuiltinEngineRequest(action, prompt, code);
-        return res.json(builtinResult);
-      }
-
-      const data = await response.json();
-      const content = data.choices?.[0]?.message?.content || "No response generated from DeepSeek.";
-
-      return res.json({
-        content,
-        provider: "DeepSeek",
-        model: deepseekModel
-      });
-    } else {
-      if (!geminiKey) {
-        if (deepseekKey) {
-          const response = await fetch("https://api.deepseek.com/chat/completions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${deepseekKey}`
-            },
-            body: JSON.stringify({
-              model: "deepseek-chat",
-              messages: [
-                { role: "system", content: AHEUI_SYSTEM_PROMPT },
-                { role: "user", content: userPrompt }
-              ],
-              temperature: 0.2
-            })
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            const content = data.choices?.[0]?.message?.content || "No response generated from DeepSeek.";
-
-            return res.json({
-              content,
-              provider: "DeepSeek",
-              model: "deepseek-chat"
-            });
-          }
-        }
-        // Fallback to Built-in Engine without error
-        const builtinResult = handleBuiltinEngineRequest(action, prompt, code);
-        return res.json(builtinResult);
-      }
-
+    if (geminiKey) {
       return await handleGeminiRequest(req, res, userPrompt, geminiKey);
     }
+
+    // Fallback to Built-in Engine without requiring any keys
+    const builtinResult = handleBuiltinEngineRequest(action, prompt, code);
+    return res.json(builtinResult);
   } catch (err: any) {
     console.error("AI Generation Error, falling back to Built-in Engine:", err);
     const { prompt, action, code } = req.body || {};

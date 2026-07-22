@@ -313,20 +313,32 @@ export default function App() {
     setIsRunning(false);
     setExecutionMessage(null);
     let steps = 0;
-    const maxSteps = 5000000; // safe limit to prevent browser freezing (5M steps runs in ~400ms)
+    const maxSteps = 1000000;
     
+    // Save snapshot before batch run so user can step back
+    if (interpreter.history.length >= interpreter.maxHistory) {
+      interpreter.history.shift();
+    }
+    interpreter.history.push(interpreter.getSnapshot());
+
+    const startTime = performance.now();
+
     while (!interpreter.halted && steps < maxSteps) {
-      interpreter.step();
+      interpreter.step(false); // fast execution without per-step snapshot cloning
       steps++;
+      if (interpreter.output.length > 200000) break;
+      if (steps % 10000 === 0 && performance.now() - startTime > 150) {
+        break; // Keep UI responsive
+      }
     }
     
     setStepCount(prev => prev + steps);
     updateStates();
 
-    if (!interpreter.halted && steps >= maxSteps) {
+    if (!interpreter.halted && (steps >= maxSteps || interpreter.output.length > 200000 || performance.now() - startTime > 150)) {
       setExecutionMessage({
         type: "warning",
-        text: `안전을 위해 5,000,000단계에서 일시 정지되었습니다. 무한 루프 상태이거나 복잡한 계산일 수 있습니다. '번개 실행'을 다시 누르면 이어서 추가 5,000,000단계를 진행합니다. (Paused at 5,000,000 steps to prevent freezing. Click Instant Run again to continue.)`
+        text: `안전을 위해 ${steps.toLocaleString()}단계에서 일시 정지되었습니다. 무한 루프 상태이거나 대량 연산일 수 있습니다. '번개 실행'을 다시 누르면 이어서 진행합니다. (Paused at ${steps.toLocaleString()} steps.)`
       });
     } else if (interpreter.halted) {
       const haltReason = interpreter.infinityCount >= 8
