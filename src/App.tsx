@@ -242,9 +242,12 @@ export default function App() {
         text: `안전을 위해 5,000,000단계에서 일시 정지되었습니다. 무한 루프 상태이거나 복잡한 계산일 수 있습니다. '번개 실행'을 다시 누르면 이어서 추가 5,000,000단계를 진행합니다. (Paused at 5,000,000 steps to prevent freezing. Click Instant Run again to continue.)`
       });
     } else if (interpreter.halted) {
+      const haltReason = interpreter.infinityCount >= 8
+        ? `무한대(Infinity)가 8회 연속 출력되어 실행이 안전하게 종료되었습니다.`
+        : `번개처럼 실행이 완료되었습니다!`;
       setExecutionMessage({
         type: "success",
-        text: `번개처럼 실행이 완료되었습니다! 총 ${steps.toLocaleString()}걸음이 성공적으로 처리되었습니다. (Completed successfully! Processed ${steps.toLocaleString()} steps.)`
+        text: `${haltReason} 총 ${steps.toLocaleString()}걸음이 성공적으로 처리되었습니다. (Processed ${steps.toLocaleString()} steps.)`
       });
     }
   };
@@ -366,7 +369,9 @@ export default function App() {
                       <Code className="w-4 h-4 text-celadon-green" />
                       글꼴틀 (Code Editor)
                     </div>
-                    <span className="text-xs text-ink-muted font-serif">한글 자소 (UTF-8)</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-ink-muted font-serif">한글 자소 (UTF-8)</span>
+                    </div>
                   </div>
                   <div className="relative">
                     <textarea
@@ -379,14 +384,9 @@ export default function App() {
 
                   {/* Input Buffer Panel */}
                   <div className="flex flex-col gap-2">
-                    <label className="text-xs font-serif text-ink-dark flex items-center gap-1.5 justify-between">
-                      <span className="flex items-center gap-1.5">
-                        <Terminal className="w-3.5 h-3.5 text-[#0046ff]" />
-                        기록틀 (Input Buffer)
-                      </span>
-                      <span className="font-mono text-[9px] text-[#0046ff] font-bold tracking-wider uppercase bg-[#0046ff]/10 px-1.5 py-0.5 select-none">
-                        DS_CONSOLE_IN
-                      </span>
+                    <label className="text-xs font-serif text-ink-dark flex items-center gap-1.5">
+                      <Terminal className="w-3.5 h-3.5 text-[#0046ff]" />
+                      기록틀 (Input Buffer)
                     </label>
                     <div className="relative flex items-center bg-[#05091e] border-2 border-[#0046ff] px-3 py-2 text-sm text-[#00f0ff] font-mono rounded-none shadow-[0_0_15px_rgba(0,70,255,0.12)]">
                       <span className="text-[#0046ff] mr-2 shrink-0 select-none font-bold">&gt;</span>

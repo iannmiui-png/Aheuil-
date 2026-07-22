@@ -75,6 +75,7 @@ export class AheuiInterpreter {
   public storage: bigint[][] = [];
   public currentStorage: number = 0;
   public output: string = "";
+  public infinityCount: number = 0;
   
   private inputBuffer: string = "";
   private inputPtr: number = 0;
@@ -92,6 +93,7 @@ export class AheuiInterpreter {
     this.currentStorage = 0;
     this.storage = Array.from({ length: 28 }, () => []);
     this.output = "";
+    this.infinityCount = 0;
     this.inputPtr = 0;
   }
 
@@ -290,8 +292,28 @@ export class AheuiInterpreter {
         const a = this.popVal(this.currentStorage);
         if (a !== null) {
           if (idx === 21) {
-            // ㅇ: print as integer
-            this.output += a.toString();
+            // ㅇ: print as integer / floating point / Infinity
+            let strVal = "";
+            const numVal = Number(a);
+
+            if (a >= BigInt(Number.MIN_SAFE_INTEGER) && a <= BigInt(Number.MAX_SAFE_INTEGER)) {
+              strVal = a.toString();
+            } else if (Number.isFinite(numVal)) {
+              strVal = numVal.toString();
+            } else {
+              strVal = "Infinity";
+            }
+
+            if (strVal.includes("Infinity")) {
+              this.infinityCount++;
+              if (this.infinityCount >= 8) {
+                this.halted = true;
+              }
+            } else {
+              this.infinityCount = 0;
+            }
+
+            this.output += strVal;
           } else if (idx === 27) {
             // ㅎ: print as character
             try {
