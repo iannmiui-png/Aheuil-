@@ -50,6 +50,34 @@ const PRESETS = [
     code: "밤발따망희"
   },
   {
+    name: "Hello, World!",
+    description: "Generates and prints the text 'Hello, World!' by constructing character ASCII code points using Aheui stack arithmetic and character output (맣).",
+    code: "밞밣따맣밞밞반다따반다맣밞밞받다따맣밞밞받다따맣밞밞받다따받다맣밤밞반다따맣밤밣따맣밞밞따밦다맣밞밞받다따받다맣밞밞받다따밦다맣밞밞받다따맣밞밞반다따박반나다맣밤밣따박반나다맣희"
+  },
+  {
+    name: "Square Calculator (N²)",
+    description: "Takes an integer input N (방), duplicates it (빠), multiplies N * N (따), prints the result (망), and halts (희).",
+    code: "방빠따망희",
+    defaultInput: "12"
+  },
+  {
+    name: "Cumulative Sum (1 to N)",
+    description: "Calculates the sum of integers from 1 to N using stack arithmetic N * (N + 1) / 2.",
+    code: "방빠박반나다따반나망희",
+    defaultInput: "100"
+  },
+  {
+    name: "Even / Odd Checker",
+    description: "Takes an integer input N and calculates N % 2 (라). Outputs 0 if N is even, or 1 if N is odd.",
+    code: "방반라망희",
+    defaultInput: "7"
+  },
+  {
+    name: "AHEUI! Text Generator",
+    description: "Outputs the string 'AHEUI!' by calculating ASCII character values (65, 72, 69, 85, 73, 33) and popping with character output (맣).",
+    code: "밞밠따반다맣밞밣따맣밞밠따밦다맣밞밞따밤다맣밞밣따박반나다맣밤밣따박반나다맣희"
+  },
+  {
     name: "Stack Demo (LIFO)",
     description: "Demonstrates LIFO (Last-In, First-Out). Pushes 3 then 5, pops and prints both. Output: 53.",
     code: "받발망망희"
@@ -65,14 +93,20 @@ const PRESETS = [
     code: "받발다망아\n배자차희어"
   },
   {
-    name: "Infinite Fibonacci Sequence",
-    description: "An elegant 3-line 2D loop that computes and prints the Fibonacci sequence endlessly (0 1 1 2 3 5 8 ...). Demonstrates memory copy (팍), multi-stack exchange, and horizontal wrap-around.",
-    code: "바반반나우\n우어어어어\n카빠망삭밤밤따빠다맣사카팍다삭쓰사카"
-  },
-  {
     name: "Countdown (5 to 1)",
     description: "A beautifully structured 3-line 2D loop. Counts down from 5 to 1 using loop-back routes and conditional branching (초) to gracefully halt (희) when the counter reaches 0.",
     code: "우우어어어어어어어어어어어어어어어어\n발빠망삭밤밤따빠다맣사빠반반나타빠초\n                 희"
+  },
+  {
+    name: "Collatz Conjecture (3N + 1)",
+    description: "A complete 5-row 2D grid program implementing the Collatz sequence. Given starting integer N (방), prints each step (망) and computes N/2 if even or 3N+1 if odd using 2D direction routing (추, 초) until N reaches 1 and halts (희).",
+    code: "방빠망밤밣따맣빠박반나타추   아받따박반나다우\n            아빠반라초\n                아반나우\n 오어어어어어어어어어어 어어어어어어어어어어어\n            희 오어어어어어어어어어어어어어",
+    defaultInput: "7"
+  },
+  {
+    name: "Infinite Fibonacci Sequence",
+    description: "An elegant 3-line 2D loop that computes and prints the Fibonacci sequence endlessly (0 1 1 2 3 5 8 ...). Demonstrates memory copy (팍), multi-stack exchange, and horizontal wrap-around.",
+    code: "바반반나우\n우어어어어\n카빠망삭밤밤따빠다맣사카팍다삭쓰사카"
   },
   {
     name: "Prime Checker (2D Grid Loop)",
