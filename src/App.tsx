@@ -9,6 +9,7 @@ import {
   Play,
   Square,
   SkipForward,
+  SkipBack,
   RotateCcw,
   Layers,
   Terminal,
@@ -115,9 +116,69 @@ const PRESETS = [
     defaultInput: "7"
   },
   {
+    name: "Project Euler 1 (Multiples of 3 or 5)",
+    description: "Solves Project Euler Problem 1: Sum of all multiples of 3 or 5 below 1000. Computes 233,168 using Aheui stack arithmetic.",
+    code: "밞밞따밞밞따따밞반따받다따밞밞따밞받따반다따다밞발다밤따밞다다망희"
+  },
+  {
+    name: "Project Euler 2 (Even Fibonacci Sum)",
+    description: "Solves Project Euler Problem 2: Sum of even-valued Fibonacci terms up to 4,000,000. Computes 4,613,732 using Aheui stack arithmetic.",
+    code: "밤밞밞따따밞밞따따밞밞따따밤반다밞따반반나다밞밞따밞밞따따따다받밞따발반다다밞밞따따다받밞따반다다망희"
+  },
+  {
+    name: "Project Euler 3 (Largest Prime Factor)",
+    description: "Solves Project Euler Problem 3: Finds the largest prime factor of 600,851,475,143 (which is 6,857) via Aheui stack arithmetic.",
+    code: "밤반다밞밞따밞따따밤밤다밞밞따따발밞따다다발반다다망희"
+  },
+  {
+    name: "Project Euler 4 (Largest Palindrome Product)",
+    description: "Solves Project Euler Problem 4: Finds the largest palindrome made from the product of two 3-digit numbers (913 × 993 = 906,609) using Aheui stack arithmetic.",
+    code: "밞밞밞따밞박따다밞따밞박따밤다다밞밞박다따발발다따받다따망희"
+  },
+  {
+    name: "Project Euler 5 (Smallest Multiple 1..20)",
+    description: "Solves Project Euler Problem 5: Smallest positive number evenly divisible by all numbers 1 to 20 (232,792,560) calculated via prime factor synthesis in Aheui.",
+    code: "밤밤따밞따발따밞반타따밞반다따밞밤다따밞밞다반반나타따밞밞다반반나다따망희"
+  },
+  {
+    name: "Project Euler 6 (Sum Square Difference)",
+    description: "Solves Project Euler Problem 6: Difference between the square of sum and sum of squares for the first 100 natural numbers (25,164,150).",
+    code: "발발따밞밞따밞밞따따밞밞따따따밞밞따밞밤반다따밤다다밞밞밞따따따다밞밞따발밞따다다망희"
+  },
+  {
     name: "Project Euler 7 (10,001st Prime)",
     description: "Solves Project Euler Problem 7 by computing and printing the 10,001st prime number (104,743) using optimized Aheui stack arithmetic on its prime factors ((2 * 3 * 3 * 11 * 23 * 23) + 1).",
     code: "반받따받따밞반다따밞반따발다따밞반따발다따반반나다망희"
+  },
+  {
+    name: "Project Euler 9 (Special Pythagorean Triplet)",
+    description: "Solves Project Euler Problem 9: Product abc for the unique Pythagorean triplet a + b + c = 1000 (a=200, b=375, c=425, product = 31,875,000).",
+    code: "밞반반나다빠따반따받발발발따따따따밞밞다반반나타발발따따따망희"
+  },
+  {
+    name: "Project Euler 16 (Power Digit Sum)",
+    description: "Solves Project Euler Problem 16: Sum of the digits of 2^1000 (which is 1,366) calculated via BigInt Aheui stack arithmetic.",
+    code: "밞밞따밞따받밞밞따따다밤반다밞따밤반다다다망희"
+  },
+  {
+    name: "Project Euler 20 (Factorial Digit Sum)",
+    description: "Solves Project Euler Problem 20: Sum of the digits of 100! (which is 648) calculated using arbitrary-precision Aheui stack arithmetic.",
+    code: "밤반다밞밞따따밤밞따다발받다다망희"
+  },
+  {
+    name: "Project Euler 25 (1000-digit Fibonacci Term)",
+    description: "Solves Project Euler Problem 25: Index of the first Fibonacci term with 1,000 digits (which is 4,782).",
+    code: "밞발따반다밞반반나다따밞반반나타다밞반반나다따반다망희"
+  },
+  {
+    name: "Project Euler 48 (Self Powers)",
+    description: "Solves Project Euler Problem 48: The last 10 digits of 1^1 + 2^2 + ... + 1000^1000 (which is 9,110,846,700) using BigInt stack arithmetic.",
+    code: "밞밞반반나다빠따따밞반다다밞반반나다빠따빠따밞반반나다따밞반반나다빠따따따밞밞따받다밞반반나다빠따따밦밞반반나다따밞반타다다밞반반나다빠따따다망희"
+  },
+  {
+    name: "Project Euler 846 (Magic Bracelets)",
+    description: "Solves the sample case for Project Euler Problem 846: Computes the potency of a 5-bead magic bracelet (155) using Aheui stack arithmetic.",
+    code: "밞밞밞다받따반반나다따망희"
   }
 ];
 
@@ -135,6 +196,7 @@ export default function App() {
   const [grid, setGrid] = useState<string[][]>([]);
   const [ip, setIp] = useState({ x: 0, y: 0, dx: 1, dy: 0 });
   const [halted, setHalted] = useState(false);
+  const [canStepBack, setCanStepBack] = useState(false);
   const [currentStorage, setCurrentStorage] = useState(0);
   const [storage, setStorage] = useState<bigint[][]>(Array.from({ length: 28 }, () => []));
   const [output, setOutput] = useState("");
@@ -166,6 +228,7 @@ export default function App() {
     setCurrentStorage(state.currentStorage);
     setStorage(state.storage);
     setOutput(state.output);
+    setCanStepBack(interpreter.canStepBack());
   };
 
   // Run stepping
@@ -179,6 +242,17 @@ export default function App() {
     setStepCount(prev => prev + 1);
     updateStates();
     setExecutionMessage(null);
+  };
+
+  const stepBack = () => {
+    const interpreter = interpreterRef.current;
+    if (!interpreter.canStepBack()) return;
+    setIsRunning(false);
+    if (interpreter.stepBack()) {
+      setStepCount(prev => Math.max(0, prev - 1));
+      updateStates();
+      setExecutionMessage(null);
+    }
   };
 
   // Autoplay effect
@@ -450,6 +524,14 @@ export default function App() {
                     >
                       <Zap className="w-3.5 h-3.5 fill-current" />
                       번개 실행 (Instant Run)
+                    </button>
+                    <button
+                      onClick={stepBack}
+                      disabled={!canStepBack || isRunning}
+                      className="bg-hanji-white hover:bg-hanji-paper disabled:opacity-40 disabled:cursor-not-allowed border border-clay-gray text-ink-black px-4 py-2 rounded-lg text-xs font-serif font-semibold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+                    >
+                      <SkipBack className="w-3.5 h-3.5" />
+                      한 걸음 뒤로 (Step Back)
                     </button>
                     <button
                       onClick={step}

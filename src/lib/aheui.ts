@@ -65,6 +65,19 @@ export interface InterpreterState {
   output: string;
 }
 
+export interface InterpreterSnapshot {
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
+  halted: boolean;
+  currentStorage: number;
+  storage: bigint[][];
+  output: string;
+  infinityCount: number;
+  inputPtr: number;
+}
+
 export class AheuiInterpreter {
   public code: string[][] = [];
   public x: number = 0;
@@ -76,6 +89,8 @@ export class AheuiInterpreter {
   public currentStorage: number = 0;
   public output: string = "";
   public infinityCount: number = 0;
+  public history: InterpreterSnapshot[] = [];
+  public maxHistory: number = 2000;
   
   private inputBuffer: string = "";
   private inputPtr: number = 0;
@@ -95,6 +110,7 @@ export class AheuiInterpreter {
     this.output = "";
     this.infinityCount = 0;
     this.inputPtr = 0;
+    this.history = [];
   }
 
   public load(sourceCode: string) {
@@ -187,6 +203,45 @@ export class AheuiInterpreter {
     }
   }
 
+  public getSnapshot(): InterpreterSnapshot {
+    return {
+      x: this.x,
+      y: this.y,
+      dx: this.dx,
+      dy: this.dy,
+      halted: this.halted,
+      currentStorage: this.currentStorage,
+      storage: this.storage.map(arr => [...arr]),
+      output: this.output,
+      infinityCount: this.infinityCount,
+      inputPtr: this.inputPtr,
+    };
+  }
+
+  public restoreSnapshot(snapshot: InterpreterSnapshot) {
+    this.x = snapshot.x;
+    this.y = snapshot.y;
+    this.dx = snapshot.dx;
+    this.dy = snapshot.dy;
+    this.halted = snapshot.halted;
+    this.currentStorage = snapshot.currentStorage;
+    this.storage = snapshot.storage.map(arr => [...arr]);
+    this.output = snapshot.output;
+    this.infinityCount = snapshot.infinityCount;
+    this.inputPtr = snapshot.inputPtr;
+  }
+
+  public canStepBack(): boolean {
+    return this.history.length > 0;
+  }
+
+  public stepBack(): boolean {
+    if (this.history.length === 0) return false;
+    const prev = this.history.pop()!;
+    this.restoreSnapshot(prev);
+    return true;
+  }
+
   public step() {
     if (this.halted) return;
 
@@ -194,6 +249,11 @@ export class AheuiInterpreter {
       this.halted = true;
       return;
     }
+
+    if (this.history.length >= this.maxHistory) {
+      this.history.shift();
+    }
+    this.history.push(this.getSnapshot());
 
     const row = this.code[this.y];
     if (!row || row.length === 0 || this.x >= row.length) {
@@ -292,17 +352,8 @@ export class AheuiInterpreter {
         const a = this.popVal(this.currentStorage);
         if (a !== null) {
           if (idx === 21) {
-            // ㅇ: print as integer / floating point / Infinity
-            let strVal = "";
-            const numVal = Number(a);
-
-            if (a >= BigInt(Number.MIN_SAFE_INTEGER) && a <= BigInt(Number.MAX_SAFE_INTEGER)) {
-              strVal = a.toString();
-            } else if (Number.isFinite(numVal)) {
-              strVal = numVal.toString();
-            } else {
-              strVal = "Infinity";
-            }
+            // ㅇ: print as integer (arbitrary precision BigInt)
+            const strVal = a.toString();
 
             if (strVal.includes("Infinity")) {
               this.infinityCount++;
