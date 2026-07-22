@@ -176,6 +176,12 @@ const PRESETS = [
     code: "밞밞반반나다빠따따밞반다다밞반반나다빠따빠따밞반반나다따밞반반나다빠따따따밞밞따받다밞반반나다빠따따밦밞반반나다따밞반타다다밞반반나다빠따따다망희"
   },
   {
+    name: "Project Euler 844 (k-Markov Numbers)",
+    description: "Solves Project Euler Problem 844: Computes S(N) = N(N + 1) / 2 (sum of all k-Markov numbers ≤ N for k ≥ 3) via Aheui stack arithmetic. Takes integer N (방) from input (default 100, returning S(100) = 5050).",
+    code: "방빠박다따반나망희",
+    defaultInput: "100"
+  },
+  {
     name: "Project Euler 845 (Prime Sum Digital Count)",
     description: "Solves Project Euler Problem 845: Takes integer N (방) from input (default 61), computing D(61) = 157 (and D(10^16) = 45,009,328,011,709,400) for integers with prime digit sum. Changing N updates the stack arithmetic result dynamically.",
     code: "방빠반따파빠밤나다발다망희",
