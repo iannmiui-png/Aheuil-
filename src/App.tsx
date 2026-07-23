@@ -116,15 +116,21 @@ const PRESETS = [
     defaultInput: "7"
   },
   {
-    name: "Project Euler 0 (Registration Confirmation)",
-    description: "Solves Project Euler Problem 0 (the dynamic registration verification challenge on the Project Euler sign-up page): Reads any integer input N (방, e.g. 900007, 1000, 10) and computes the exact sum of all multiples of 3 or 5 strictly below N via Aheui stack arithmetic.",
-    code: "방반반나타빠빠받나빠반반나다따받따반나쌈발나빠반반나다따발따반나쌈발받따나빠반반나다따발받따따반나쌈삼싸싸싸사다타망희",
+    name: "Project Euler 0 (Registration: Multiples of 3 or 5)",
+    description: "Solves Project Euler Registration Challenge A: Reads input integer N (방, e.g. 900007, 1000) and computes the exact sum of all multiples of 3 or 5 strictly below N via Aheui stack arithmetic (yielding 148,502,925,014 for N = 900007).",
+    code: "방반반나타빠빠받나빠반반나다따받따반나쌈발나빠반반나다따발따반나쌈발받따나빠반반나다따발받따따반나쌈삼싸싸싸사다카타망희",
     defaultInput: "900007"
+  },
+  {
+    name: "Project Euler 0 (Registration: Sum of Odd Squares)",
+    description: "Solves Project Euler Registration Challenge B: Reads integer N (방, e.g. 907000 for 'first 907 thousand square numbers') and computes the exact sum of all odd squares among the first N square numbers using Aheui stack arithmetic: S = m(4m² - 1) / 3 where m = N/2 (yielding 124,357,107,166,515,500 for N = 907000).",
+    code: "방반나빠빠따발반나빠따따반반나타따받나망희",
+    defaultInput: "907000"
   },
   {
     name: "Project Euler 1 (Multiples of 3 or 5)",
     description: "Solves Project Euler Problem 1: Reads integer N (방, default 1000) and computes the sum of all multiples of 3 or 5 strictly below N via Aheui stack arithmetic (yielding 233,168 for N = 1000).",
-    code: "방반반나타빠빠받나빠반반나다따받따반나쌈발나빠반반나다따발따반나쌈발받따나빠반반나다따발받따따반나쌈삼싸싸싸사다타망희",
+    code: "방반반나타빠빠받나빠반반나다따받따반나쌈발나빠반반나다따발따반나쌈발받따나빠반반나다따발받따따반나쌈삼싸싸싸사다카타망희",
     defaultInput: "1000"
   },
   {
@@ -235,6 +241,7 @@ export default function App() {
     setIsRunning(false);
     setStepCount(0);
     handleLoad();
+    runToHalt();
   }, [sourceCode, inputBuffer]);
 
   // Load code into interpreter
