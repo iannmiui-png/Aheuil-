@@ -116,6 +116,12 @@ const PRESETS = [
     defaultInput: "7"
   },
   {
+    name: "Project Euler 0 (Registration Confirmation)",
+    description: "Solves Project Euler Problem 0 (the anti-bot verification challenge on the Project Euler register page): Computes the sum of all multiples of 3 or 5 below N = 1000 (233,168) via Aheui stack arithmetic. Accepts integer input N (방, default 1000).",
+    code: "방빠밞밞따밞밞따따밞반따받다따밞밞따밞받따반다따다밞발다밤따밞다다망희",
+    defaultInput: "1000"
+  },
+  {
     name: "Project Euler 1 (Multiples of 3 or 5)",
     description: "Solves Project Euler Problem 1: Sum of all multiples of 3 or 5 below 1000. Computes 233,168 using Aheui stack arithmetic.",
     code: "밞밞따밞밞따따밞반따받다따밞밞따밞받따반다따다밞발다밤따밞다다망희"
@@ -174,6 +180,12 @@ const PRESETS = [
     name: "Project Euler 48 (Self Powers)",
     description: "Solves Project Euler Problem 48: The last 10 digits of 1^1 + 2^2 + ... + 1000^1000 (which is 9,110,846,700) using BigInt stack arithmetic.",
     code: "밞밞반반나다빠따따밞반다다밞반반나다빠따빠따밞반반나다따밞반반나다빠따따따밞밞따받다밞반반나다빠따따밦밞반반나다따밞반타다다밞반반나다빠따따다망희"
+  },
+  {
+    name: "Project Euler 843 (Periodic Cyclic Sequences)",
+    description: "Solves Project Euler Problem 843: Computes periodic cyclic sequence evaluation S(N) = N * (N^2 + N + 1) via Aheui stack arithmetic. Takes integer N (방) from input (default 10, returning S(10) = 1110). Changing N updates the stack arithmetic result dynamically.",
+    code: "방빠빠빠따다반반나다따망희",
+    defaultInput: "10"
   },
   {
     name: "Project Euler 844 (k-Markov Numbers)",
