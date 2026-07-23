@@ -117,14 +117,15 @@ const PRESETS = [
   },
   {
     name: "Project Euler 0 (Registration Confirmation)",
-    description: "Solves Project Euler Problem 0 (the anti-bot verification challenge on the Project Euler register page): Computes the sum of all multiples of 3 or 5 below N = 1000 (233,168) via Aheui stack arithmetic. Accepts integer input N (방, default 1000).",
-    code: "방빠밞밞따밞밞따따밞반따받다따밞밞따밞받따반다따다밞발다밤따밞다다망희",
-    defaultInput: "1000"
+    description: "Solves Project Euler Problem 0 (the dynamic registration verification challenge on the Project Euler sign-up page): Reads any integer input N (방, e.g. 900007, 1000, 10) and computes the exact sum of all multiples of 3 or 5 strictly below N via Aheui stack arithmetic.",
+    code: "방반반나타빠빠받나빠반반나다따받따반나쌈발나빠반반나다따발따반나쌈발받따나빠반반나다따발받따따반나쌈삼싸싸싸사다타망희",
+    defaultInput: "900007"
   },
   {
     name: "Project Euler 1 (Multiples of 3 or 5)",
-    description: "Solves Project Euler Problem 1: Sum of all multiples of 3 or 5 below 1000. Computes 233,168 using Aheui stack arithmetic.",
-    code: "밞밞따밞밞따따밞반따받다따밞밞따밞받따반다따다밞발다밤따밞다다망희"
+    description: "Solves Project Euler Problem 1: Reads integer N (방, default 1000) and computes the sum of all multiples of 3 or 5 strictly below N via Aheui stack arithmetic (yielding 233,168 for N = 1000).",
+    code: "방반반나타빠빠받나빠반반나다따받따반나쌈발나빠반반나다따발따반나쌈발받따나빠반반나다따발받따따반나쌈삼싸싸싸사다타망희",
+    defaultInput: "1000"
   },
   {
     name: "Project Euler 2 (Even Fibonacci Sum)",
@@ -208,6 +209,7 @@ const PRESETS = [
 ];
 
 export default function App() {
+  const [selectedPresetName, setSelectedPresetName] = useState<string | null>(PRESETS[0].name);
   const [sourceCode, setSourceCode] = useState(PRESETS[0].code);
   const [inputBuffer, setInputBuffer] = useState("");
   const [isRunning, setIsRunning] = useState(false);
@@ -313,6 +315,7 @@ export default function App() {
   const handlePresetSelect = (preset: typeof PRESETS[number]) => {
     setIsRunning(false);
     setStepCount(0);
+    setSelectedPresetName(preset.name);
     setSourceCode(preset.code);
     setInputBuffer(preset.defaultInput || "");
     setExecutionMessage(null);
@@ -451,25 +454,30 @@ export default function App() {
                     디딤돌 예제 (Presets)
                   </div>
                   <div className="flex flex-col gap-2">
-                    {PRESETS.map((preset) => (
-                      <button
-                        key={preset.name}
-                        onClick={() => handlePresetSelect(preset)}
-                        className={`text-left p-3 rounded-lg border transition-all hover:bg-hanji-white/50 group ${
-                          sourceCode === preset.code
-                            ? "bg-hanji-white border-dancheong-red/40 text-ink-black shadow-sm"
-                            : "bg-hanji-white/30 border-clay-gray/40 text-ink-muted"
-                        }`}
-                      >
-                        <div className="font-semibold text-sm text-ink-black group-hover:text-dancheong-red transition-colors flex items-center gap-2 font-serif">
-                          <span className={`w-1.5 h-1.5 rounded-full ${sourceCode === preset.code ? 'bg-dancheong-red' : 'bg-ink-muted/30'}`} />
-                          {preset.name}
-                        </div>
-                        <p className="text-xs text-ink-muted mt-1 line-clamp-2 leading-relaxed">
-                          {preset.description}
-                        </p>
-                      </button>
-                    ))}
+                    {PRESETS.map((preset) => {
+                      const isSelected = selectedPresetName
+                        ? selectedPresetName === preset.name
+                        : sourceCode === preset.code;
+                      return (
+                        <button
+                          key={preset.name}
+                          onClick={() => handlePresetSelect(preset)}
+                          className={`text-left p-3 rounded-lg border transition-all hover:bg-hanji-white/50 group ${
+                            isSelected
+                              ? "bg-hanji-white border-dancheong-red/40 text-ink-black shadow-sm"
+                              : "bg-hanji-white/30 border-clay-gray/40 text-ink-muted"
+                          }`}
+                        >
+                          <div className="font-semibold text-sm text-ink-black group-hover:text-dancheong-red transition-colors flex items-center gap-2 font-serif">
+                            <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-dancheong-red' : 'bg-ink-muted/30'}`} />
+                            {preset.name}
+                          </div>
+                          <p className="text-xs text-ink-muted mt-1 line-clamp-2 leading-relaxed">
+                            {preset.description}
+                          </p>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -487,7 +495,10 @@ export default function App() {
                   <div className="relative">
                     <textarea
                       value={sourceCode}
-                      onChange={(e) => setSourceCode(e.target.value)}
+                      onChange={(e) => {
+                        setSourceCode(e.target.value);
+                        setSelectedPresetName(null);
+                      }}
                       placeholder="Type or paste Aheui Hangul code here..."
                       className="w-full h-44 bg-hanji-white border border-clay-gray rounded-lg p-3 text-ink-black font-mono text-sm leading-relaxed focus:outline-none focus:border-celadon-green/50 resize-y shadow-inner"
                     />
