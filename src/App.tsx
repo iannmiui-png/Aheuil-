@@ -408,6 +408,34 @@ export default function App() {
     setActiveTab("visualizer");
   };
 
+  const handleBfFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const rawText = (event.target?.result as string) || "";
+      // Strip everything including newlines and non-Brainfuck syntax characters (+ - . , < > [ ])
+      const strippedBf = rawText.split("").filter((c) => "+-.,<>[]".includes(c)).join("");
+
+      setSelectedBfPresetName(`File: ${file.name}`);
+      setBfCode(strippedBf);
+
+      // Compile to Aheui
+      const grid = compileBfToAheui(strippedBf);
+      setCompiledAheuiGrid(grid);
+
+      // Automatically send to visualizer and switch tab
+      const aheuiCodeString = grid.join("\n");
+      setSelectedPresetName(`[BF] ${file.name}`);
+      setSourceCode(aheuiCodeString);
+      setInputBuffer(bfInputBuffer);
+      setActiveTab("visualizer");
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
   return (
     <div className="min-h-screen bg-hanji-white text-ink-black flex flex-col font-sans">
       {/* Header Banner */}
@@ -925,7 +953,7 @@ export default function App() {
                         title="파일에서 브레인퍽 구문만 정제(Strip)하여 번역 및 활성판에서 바로 실행합니다"
                       >
                         <Upload className="w-3.5 h-3.5" />
-                        파일 불러오기 (Strip &amp; Run)
+                        파일 불러오기 (경고 ⚠️ 벌레 Buggy)
                       </button>
                       <input
                         type="file"
