@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, ChangeEvent } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Play,
@@ -31,7 +31,10 @@ import {
   Cpu,
   Copy,
   Check,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Upload,
+  FolderOpen,
+  FileCode
 } from "lucide-react";
 import {
   AheuiInterpreter,
@@ -212,6 +215,7 @@ export default function App() {
   const [bfInputBuffer, setBfInputBuffer] = useState<string>("");
   const [compiledAheuiGrid, setCompiledAheuiGrid] = useState<string[]>(() => compileBfToAheui(BF_PRESETS[0].code));
   const [copiedNotice, setCopiedNotice] = useState<boolean>(false);
+  const bfFileInputRef = useRef<HTMLInputElement>(null);
   
   // Interpreter state
   const interpreterRef = useRef(new AheuiInterpreter());
@@ -402,6 +406,34 @@ export default function App() {
     setSourceCode(aheuiCodeString);
     setInputBuffer(bfInputBuffer);
     setActiveTab("visualizer");
+  };
+
+  const handleBfFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const rawText = (event.target?.result as string) || "";
+      // Strip everything including newlines and non-Brainfuck syntax characters (+ - . , < > [ ])
+      const strippedBf = rawText.split("").filter((c) => "+-.,<>[]".includes(c)).join("");
+
+      setSelectedBfPresetName(`File: ${file.name}`);
+      setBfCode(strippedBf);
+
+      // Compile to Aheui
+      const grid = compileBfToAheui(strippedBf);
+      setCompiledAheuiGrid(grid);
+
+      // Automatically send to visualizer and switch tab
+      const aheuiCodeString = grid.join("\n");
+      setSelectedPresetName(`[BF] ${file.name}`);
+      setSourceCode(aheuiCodeString);
+      setInputBuffer(bfInputBuffer);
+      setActiveTab("visualizer");
+    };
+    reader.readAsText(file);
+    e.target.value = "";
   };
 
   return (
@@ -906,14 +938,31 @@ export default function App() {
 
                 {/* Editor Card */}
                 <div className="bg-hanji-paper border border-clay-gray rounded-xl p-5 flex flex-col gap-4 shadow-sm">
-                  <div className="flex items-center justify-between border-b border-clay-gray/60 pb-2">
+                  <div className="flex flex-wrap items-center justify-between border-b border-clay-gray/60 pb-2 gap-2">
                     <div className="flex items-center gap-2 text-ink-black font-semibold font-serif text-sm">
                       <Cpu className="w-4 h-4 text-celadon-green" />
                       브레인퍽 소스 코드 (Brainfuck Code)
                     </div>
-                    <span className="text-xs text-ink-muted font-mono">
-                      {bfCode.split("").filter((c) => "+-.,<>[]".includes(c)).length} Tokens
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-ink-muted font-mono">
+                        {bfCode.split("").filter((c) => "+-.,<>[]".includes(c)).length} Tokens
+                      </span>
+                      <button
+                        onClick={() => bfFileInputRef.current?.click()}
+                        className="bg-celadon-green/10 hover:bg-celadon-green/20 text-celadon-green border border-celadon-green/30 text-xs px-2.5 py-1 rounded-md font-serif font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
+                        title="파일에서 브레인퍽 구문만 정제(Strip)하여 번역 및 활성판에서 바로 실행합니다"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        파일 불러오기 (Strip &amp; Run)
+                      </button>
+                      <input
+                        type="file"
+                        ref={bfFileInputRef}
+                        onChange={handleBfFileUpload}
+                        accept=".bf,.b,.txt,*"
+                        className="hidden"
+                      />
+                    </div>
                   </div>
 
                   <textarea
