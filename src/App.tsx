@@ -408,34 +408,6 @@ export default function App() {
     setActiveTab("visualizer");
   };
 
-  const handleBfFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const rawText = (event.target?.result as string) || "";
-      // Strip everything including newlines and non-Brainfuck syntax characters (+ - . , < > [ ])
-      const strippedBf = rawText.split("").filter((c) => "+-.,<>[]".includes(c)).join("");
-
-      setSelectedBfPresetName(`File: ${file.name}`);
-      setBfCode(strippedBf);
-
-      // Compile to Aheui
-      const grid = compileBfToAheui(strippedBf);
-      setCompiledAheuiGrid(grid);
-
-      // Automatically send to visualizer and switch tab
-      const aheuiCodeString = grid.join("\n");
-      setSelectedPresetName(`[BF] ${file.name}`);
-      setSourceCode(aheuiCodeString);
-      setInputBuffer(bfInputBuffer);
-      setActiveTab("visualizer");
-    };
-    reader.readAsText(file);
-    e.target.value = "";
-  };
-
   return (
     <div className="min-h-screen bg-hanji-white text-ink-black flex flex-col font-sans">
       {/* Header Banner */}
