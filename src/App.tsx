@@ -27,7 +27,11 @@ import {
   Compass,
   Zap,
   AlertTriangle,
-  CheckCircle2
+  CheckCircle2,
+  Cpu,
+  Copy,
+  Check,
+  ArrowRightLeft
 } from "lucide-react";
 import {
   AheuiInterpreter,
@@ -37,6 +41,10 @@ import {
   JONGSEONG,
   STROKES
 } from "./lib/aheui";
+import {
+  compileBfToAheui,
+  BF_PRESETS
+} from "./lib/bfCompiler";
 
 // Preset Programs
 const PRESETS = [
@@ -196,7 +204,14 @@ export default function App() {
   const [inputBuffer, setInputBuffer] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState(200); // ms per step
-  const [activeTab, setActiveTab] = useState<"visualizer" | "docs">("visualizer");
+  const [activeTab, setActiveTab] = useState<"visualizer" | "bf" | "docs">("visualizer");
+
+  // Brainfuck Compiler state
+  const [selectedBfPresetName, setSelectedBfPresetName] = useState<string | null>(BF_PRESETS[0].name);
+  const [bfCode, setBfCode] = useState<string>(BF_PRESETS[0].code);
+  const [bfInputBuffer, setBfInputBuffer] = useState<string>("");
+  const [compiledAheuiGrid, setCompiledAheuiGrid] = useState<string[]>(() => compileBfToAheui(BF_PRESETS[0].code));
+  const [copiedNotice, setCopiedNotice] = useState<boolean>(false);
   
   // Interpreter state
   const interpreterRef = useRef(new AheuiInterpreter());
@@ -367,6 +382,28 @@ export default function App() {
     return `${char || "Stack 0"} (${idx})`;
   };
 
+  // Brainfuck compilation handlers
+  const handleCompileBf = (codeToCompile: string) => {
+    const grid = compileBfToAheui(codeToCompile);
+    setCompiledAheuiGrid(grid);
+  };
+
+  const handleBfPresetSelect = (preset: typeof BF_PRESETS[number]) => {
+    setSelectedBfPresetName(preset.name);
+    setBfCode(preset.code);
+    setBfInputBuffer(preset.defaultInput || "");
+    handleCompileBf(preset.code);
+  };
+
+  const handleSendBfToVisualizer = () => {
+    const grid = compileBfToAheui(bfCode);
+    const aheuiCodeString = grid.join("\n");
+    setSelectedPresetName(`[BF] ${selectedBfPresetName || "Custom Brainfuck"}`);
+    setSourceCode(aheuiCodeString);
+    setInputBuffer(bfInputBuffer);
+    setActiveTab("visualizer");
+  };
+
   return (
     <div className="min-h-screen bg-hanji-white text-ink-black flex flex-col font-sans">
       {/* Header Banner */}
@@ -401,6 +438,17 @@ export default function App() {
           >
             <Activity className="w-3.5 h-3.5" />
             활성판 (Visualizer)
+          </button>
+          <button
+            onClick={() => setActiveTab("bf")}
+            className={`px-4 py-1.5 rounded-md text-xs font-semibold font-serif transition-all flex items-center gap-2 ${
+              activeTab === "bf"
+                ? "bg-celadon-green text-hanji-white shadow-md"
+                : "text-ink-muted hover:text-ink-black"
+            }`}
+          >
+            <Cpu className="w-3.5 h-3.5" />
+            브레인퍽 번역기 (BF to Aheui)
           </button>
           <button
             onClick={() => setActiveTab("docs")}
@@ -810,6 +858,181 @@ export default function App() {
                 </div>
 
 
+              </div>
+            </motion.div>
+          ) : activeTab === "bf" ? (
+            /* Brainfuck to Aheui Compiler panel */
+            <motion.div
+              key="bf"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.15 }}
+              className="lg:col-span-12 grid grid-cols-1 lg:grid-cols-12 gap-6"
+            >
+              {/* Left Column: Brainfuck Code & Presets */}
+              <div className="lg:col-span-5 flex flex-col gap-6">
+                {/* Presets Card */}
+                <div className="bg-hanji-paper border border-clay-gray rounded-xl p-5 flex flex-col gap-3 shadow-sm">
+                  <div className="flex items-center gap-2 text-ink-black font-semibold font-serif text-sm border-b border-clay-gray/60 pb-2 mb-1">
+                    <Sparkles className="w-4 h-4 text-dancheong-red" />
+                    브레인퍽 디딤돌 예제 (Brainfuck Presets)
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {BF_PRESETS.map((preset) => {
+                      const isSelected = selectedBfPresetName === preset.name;
+                      return (
+                        <button
+                          key={preset.name}
+                          onClick={() => handleBfPresetSelect(preset)}
+                          className={`text-left p-3 rounded-lg border transition-all hover:bg-hanji-white/50 group ${
+                            isSelected
+                              ? "bg-hanji-white border-dancheong-red/40 text-ink-black shadow-sm"
+                              : "bg-hanji-white/30 border-clay-gray/40 text-ink-muted"
+                          }`}
+                        >
+                          <div className="font-semibold text-xs text-ink-black group-hover:text-dancheong-red transition-colors flex items-center gap-1.5 font-serif">
+                            <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-dancheong-red' : 'bg-ink-muted/30'}`} />
+                            {preset.name}
+                          </div>
+                          <p className="text-[11px] text-ink-muted mt-1 line-clamp-2 leading-relaxed font-sans">
+                            {preset.description}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Editor Card */}
+                <div className="bg-hanji-paper border border-clay-gray rounded-xl p-5 flex flex-col gap-4 shadow-sm">
+                  <div className="flex items-center justify-between border-b border-clay-gray/60 pb-2">
+                    <div className="flex items-center gap-2 text-ink-black font-semibold font-serif text-sm">
+                      <Cpu className="w-4 h-4 text-celadon-green" />
+                      브레인퍽 소스 코드 (Brainfuck Code)
+                    </div>
+                    <span className="text-xs text-ink-muted font-mono">
+                      {bfCode.split("").filter((c) => "+-.,<>[]".includes(c)).length} Tokens
+                    </span>
+                  </div>
+
+                  <textarea
+                    value={bfCode}
+                    onChange={(e) => {
+                      setBfCode(e.target.value);
+                      setSelectedBfPresetName(null);
+                      handleCompileBf(e.target.value);
+                    }}
+                    placeholder="Enter Brainfuck code here (+-.,<>[])..."
+                    className="w-full h-48 bg-hanji-white border border-clay-gray rounded-lg p-3 text-ink-black font-mono text-sm leading-relaxed focus:outline-none focus:border-celadon-green/50 resize-y shadow-inner"
+                  />
+
+                  {/* Input Buffer */}
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-serif text-ink-dark flex items-center gap-1.5">
+                      <Terminal className="w-3.5 h-3.5 text-[#0046ff]" />
+                      입력값 (Input Buffer for ',')
+                    </label>
+                    <input
+                      type="text"
+                      value={bfInputBuffer}
+                      onChange={(e) => setBfInputBuffer(e.target.value)}
+                      placeholder="e.g. ABC or 123"
+                      className="w-full bg-hanji-white border border-clay-gray rounded-lg px-3 py-2 text-sm text-ink-black font-mono focus:outline-none focus:border-celadon-green/50"
+                    />
+                  </div>
+
+                  {/* ASCII Output Note */}
+                  <div className="bg-celadon-green/10 border border-celadon-green/30 rounded-lg p-2.5 text-[11px] text-ink-dark flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 text-celadon-green shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold text-ink-black">ASCII 출력 주의: </span>
+                      브레인퍽의 <code className="bg-hanji-white px-1 py-0.5 rounded border border-clay-gray/40 font-mono">.</code> 명령어는 해당 셀의 값을 <strong>ASCII 문자</strong>로 출력합니다 (예: 48='0', 50='2', 65='A'). 셀 값 20은 비출력 제어문자(DC4)이므로 화면에 공백으로 보입니다.
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                    <button
+                      onClick={handleSendBfToVisualizer}
+                      className="flex-1 bg-dancheong-red hover:bg-dancheong-hover text-hanji-white text-xs py-2.5 rounded-lg font-serif transition-all flex items-center justify-center gap-2 shadow-md font-semibold cursor-pointer"
+                    >
+                      <Zap className="w-4 h-4 fill-current" />
+                      아희로 번역 & 활성판 실행 (Compile & Run)
+                    </button>
+                    <button
+                      onClick={() => {
+                        const gridText = compiledAheuiGrid.join("\n");
+                        navigator.clipboard.writeText(gridText);
+                        setCopiedNotice(true);
+                        setTimeout(() => setCopiedNotice(false), 2000);
+                      }}
+                      className="bg-hanji-white hover:bg-hanji-paper border border-clay-gray text-ink-black text-xs px-3 py-2.5 rounded-lg font-serif transition-all flex items-center justify-center gap-1.5 shadow-sm font-semibold cursor-pointer"
+                    >
+                      {copiedNotice ? <Check className="w-3.5 h-3.5 text-celadon-green" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copiedNotice ? "복사됨!" : "아희 코드 복사"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Compiled Aheui Preview & Scaffold Architecture */}
+              <div className="lg:col-span-7 flex flex-col gap-6">
+                <div className="bg-hanji-paper border border-clay-gray rounded-xl p-5 flex flex-col gap-4 shadow-sm flex-1">
+                  <div className="flex items-center justify-between border-b border-clay-gray/60 pb-2">
+                    <div className="flex items-center gap-2 text-ink-black font-semibold font-serif text-sm">
+                      <Code className="w-4 h-4 text-celadon-green" />
+                      번역된 순수 아희 격자 (Compiled Pure Aheui 2D Grid)
+                    </div>
+                    <div className="flex items-center gap-2 text-xs font-mono text-ink-muted">
+                      <span className="bg-hanji-white px-2 py-0.5 rounded border border-clay-gray/40 font-bold text-ink-black">
+                        {compiledAheuiGrid.length} 행 (Rows)
+                      </span>
+                      <span>×</span>
+                      <span className="bg-hanji-white px-2 py-0.5 rounded border border-clay-gray/40 font-bold text-ink-black">
+                        {compiledAheuiGrid[0]?.length || 0} 열 (Cols)
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Compiled Code Output Box */}
+                  <div className="bg-hanji-white border border-clay-gray rounded-lg p-4 font-mono text-xs text-ink-black overflow-auto max-h-[440px] shadow-inner leading-relaxed select-all">
+                    {compiledAheuiGrid.map((row, idx) => (
+                      <div key={idx} className="flex hover:bg-hanji-paper/50">
+                        <span className="w-10 shrink-0 text-ink-muted/40 text-[10px] select-none text-right pr-2">
+                          {idx + 1}
+                        </span>
+                        <span className="whitespace-pre">{row}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Compiler Mapping Architecture Specs */}
+                  <div className="bg-hanji-white/60 border border-clay-gray/40 rounded-lg p-4 flex flex-col gap-2 font-serif text-xs">
+                    <div className="font-bold text-ink-black flex items-center gap-1.5 border-b border-clay-gray/30 pb-1">
+                      <ArrowRightLeft className="w-3.5 h-3.5 text-dancheong-red" />
+                      번역 매핑 구조 (Brainfuck-to-Aheui Scaffold Architecture)
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-ink-muted mt-1">
+                      <div className="bg-hanji-paper/80 p-2 rounded border border-clay-gray/30">
+                        <span className="font-bold text-ink-black font-mono">+ / -</span>
+                        <p className="mt-0.5">순수 한글 산술 블록 (`발발나다붗`, `밟밠...`)</p>
+                      </div>
+                      <div className="bg-hanji-paper/80 p-2 rounded border border-clay-gray/30">
+                        <span className="font-bold text-ink-black font-mono">. / ,</span>
+                        <p className="mt-0.5">문자 출력 (`뿌`,`뭏`) 및 입력 디스카드 (`마밯`)</p>
+                      </div>
+                      <div className="bg-hanji-paper/80 p-2 rounded border border-clay-gray/30">
+                        <span className="font-bold text-ink-black font-mono">&gt; / &lt;</span>
+                        <p className="mt-0.5">테이프 저장고 이동 (`싹순...`, `싼숙...`)</p>
+                      </div>
+                      <div className="bg-hanji-paper/80 p-2 rounded border border-clay-gray/30">
+                        <span className="font-bold text-ink-black font-mono">[ / ]</span>
+                        <p className="mt-0.5">2D 레인 조건 분기 (`추`, `초`) &amp; 중첩 수직 레인</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           ) : (
