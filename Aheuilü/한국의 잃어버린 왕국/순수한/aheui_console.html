@@ -54,8 +54,8 @@ footer { border-top:1px solid #b9b9aa; margin-top:20px; padding:8px 14px; font-s
 Brainfuck Edition v0.11 &mdash; 아희로 기계 번역됨</div>
 
     <p>이 페이지의 콘솔은 PNG 픽셀에 저장된 <b>순수 한글 아희</b> 프로그램을 직접 실행합니다.
-       브레인퍽도, 바이트코드도 거치지 않습니다. 아래에
-       <code>lost_kingdom_pure_aheui.png</code> 파일을 놓으세요.</p>
+       브레인퍽도, 바이트코드도 거치지 않습니다.
+       <code>bf_to_png.py</code>로 컴파일한 PNG 파일을 아래에 놓으세요.</p>
 
     <div id="drop">PNG 파일을 여기에 끌어다 놓거나 <input type="file" id="file" accept="image/png"></div>
 
@@ -72,7 +72,7 @@ Brainfuck Edition v0.11 &mdash; 아희로 기계 번역됨</div>
 <script>
 // Alphabet used by the BASE-40 residue encoding: newline, space, then the
 // 36 Hangul syllables the grid compiler can emit. Index = byte % 40.
-const ALPHABET = "\n \uB098\uB2E4\uB354\uB450\uB530\uB5A0\uB8E8\uB9C8\uBA38\uBB4F\uBC1B\uBC1C\uBC1F\uBC20\uBC25\uBC2F\uBC93\uBC9D\uBD80\uBD97\uBE60\uBFCC\uC03C\uC218\uC219\uC21C\uC2F9\uC2FC\uC464\uC544\uC5B4\uC624\uC6B0\uCD08\uCD94\uD76C";
+const ALPHABET = "\n \uB098\uB2E4\uB354\uB450\uB530\uB5A0\uB8E8\uBA38\uBB34\uBB4F\uBC1B\uBC1C\uBC1F\uBC20\uBC25\uBC93\uBC9D\uBD80\uBD97\uBD9B\uBE60\uBFCC\uC03C\uC218\uC219\uC21C\uC2F9\uC2FC\uC464\uC544\uC5B4\uC624\uC6B0\uCD08\uCD94\uD76C";
 const TERM_DIGIT = 39, BASE = 40, HBASE = 0xAC00;
 const STROKES = [0,2,4,4,2,5,5,3,5,7,9,9,7,9,9,8,4,4,6,2,4,0,3,4,3,4,4,0];
 
@@ -361,9 +361,12 @@ document.getElementById('file').addEventListener('change', async e => {
       e.dataTransfer.files[0].arrayBuffer().then(b => start(new Uint8Array(b)));
   }));
 
-// If served over http(s), try to load the PNG automatically.
+// If served over http(s), try to load a PNG automatically. ?png=NAME picks
+// which one, so a freshly compiled program needs no edit to this page.
 if (location.protocol.startsWith('http')) {
-  fetch('lost_kingdom_pure_aheui.png')
+  const src = new URLSearchParams(location.search || '').get('png')
+              || 'lost_kingdom_pure_aheui.png';
+  fetch(src)
     .then(r => r.ok ? r.arrayBuffer() : Promise.reject())
     .then(b => start(new Uint8Array(b)))
     .catch(() => status('PNG 파일을 선택하세요'));
